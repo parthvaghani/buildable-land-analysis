@@ -27,7 +27,6 @@ htmlcov/
 node_modules/
 dist/
 .vite/
-.next/
 *.tsbuildinfo
 npm-debug.log*
 yarn-error.log*

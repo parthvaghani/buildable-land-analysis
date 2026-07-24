@@ -16,7 +16,7 @@ available — utilities hold them as private records.  This script downloads the
 line centerlines only.  The 100 ft default buffer in config.yaml is applied at
 compute time as a corridor proxy, representing a mid-range estimate for
 high-voltage transmission (typical corridors run 100-200 ft depending on
-voltage class).  This is documented as an assumption in BACKEND_NOTES.md.
+voltage class).  This is documented as an assumption in WRITEUP.md.
 
 Output:  data/processed/easements.parquet
 """

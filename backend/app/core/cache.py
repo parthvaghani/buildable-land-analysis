@@ -19,7 +19,7 @@ features comfortably on a single machine because everything fits in RAM.  Beyond
 that scale (or under concurrent load), the single-threaded Shapely ops become
 the bottleneck; the scaling path would be a spatial database (ST_Buffer/ST_Union/
 ST_Difference pushed into the query engine with GiST indexes).  That is a described
-direction, not something this repo implements — see BACKEND_NOTES.md.
+direction, not something this repo implements — see WRITEUP.md.
 """
 
 from __future__ import annotations
@@ -100,11 +100,6 @@ class ConstraintStore:
         self._parcel_cache[parcel_id] = result
         return result
 
-    def invalidate(self, parcel_id: str | None = None) -> None:
-        if parcel_id is None:
-            self._parcel_cache.clear()
-        else:
-            self._parcel_cache.pop(parcel_id, None)
 
 
 # Module-level singleton populated at startup by app/main.py.

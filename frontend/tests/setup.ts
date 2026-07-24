@@ -1,5 +1,3 @@
-import '@testing-library/jest-dom'
-
 // Stub MapLibre GL so map tests don't need a canvas/WebGL context.
 vi.mock('maplibre-gl', () => ({
   default: {

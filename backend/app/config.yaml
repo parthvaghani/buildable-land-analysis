@@ -1,13 +1,12 @@
 # Default setback / buffer distances (feet) for each constraint type.
 # Override at runtime via POST /compute request body — no code change required.
 #
-# Rationale for each value is documented in BACKEND_NOTES.md.
+# Rationale for each value is documented in WRITEUP.md.
 buffers:
   wetland_ft: 50         # conservative planning default; many TX municipal ordinances use 25-100 ft
   floodplain_ft: 0       # FEMA zone boundary IS the regulatory line; some jurisdictions add freeboard
   easement_ft: 100       # mid-range for high-voltage transmission corridors (typical range 100-200 ft)
   building_ft: 10        # common minimum structure setback in county subdivision regulations
-  parcel_boundary_ft: 0  # zoning-dependent; disabled by default
 
 # Target county (used by ingestion scripts and startup loader).
 county:
@@ -19,7 +18,7 @@ county:
 # EPSG:32614 = WGS 84 / UTM Zone 14N — appropriate for central Texas (Hays County ~97-99°W).
 # Area units produced by Shapely in this CRS are square metres; convert to acres via / 4046.856.
 # NOTE: EPSG:3857 (Web Mercator) is NOT used here — it produces distorted areas unsuitable
-# for acreage calculations. See BACKEND_NOTES.md for the full CRS rationale.
+# for acreage calculations. See WRITEUP.md for the full CRS rationale.
 working_crs: "EPSG:32614"
 
 # Constraint layer metadata surfaced by GET /constraints.

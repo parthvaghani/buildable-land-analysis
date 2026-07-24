@@ -6,7 +6,7 @@ WGS 84 / UTM Zone 14N) which preserves distance and area for central Texas.
 EPSG:3857 (Web Mercator) is never used here because its planar area formula
 introduces latitude-dependent distortion that would make acreage figures
 incorrect — an important correctness requirement for this analysis.
-See BACKEND_NOTES.md for the full rationale.
+See WRITEUP.md for the full rationale.
 """
 
 from __future__ import annotations
@@ -17,7 +17,6 @@ from typing import Sequence
 import geopandas as gpd
 import pyproj
 from shapely import unary_union
-from shapely.geometry import MultiPolygon, Polygon, shape
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import transform
 

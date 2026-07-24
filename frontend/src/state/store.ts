@@ -53,7 +53,6 @@ interface AppState {
   setDefaultBuffers: (defaults: BufferConfig) => void
   addDrawnShape: (shape: DrawnShape) => void
   removeDrawnShape: (id: string) => void
-  updateDrawnShape: (id: string, geometry: DrawnShape['geometry']) => void
   clearDrawnShapes: () => void
   setDrawMode: (mode: DrawMode) => void
   toggleLayer: (key: LayerKey) => void
@@ -98,13 +97,6 @@ export const useStore = create<AppState>((set) => ({
 
   removeDrawnShape: (id) =>
     set((s) => ({ drawnShapes: s.drawnShapes.filter((sh) => sh.id !== id) })),
-
-  updateDrawnShape: (id, geometry) =>
-    set((s) => ({
-      drawnShapes: s.drawnShapes.map((sh) =>
-        sh.id === id ? { ...sh, geometry } : sh,
-      ),
-    })),
 
   clearDrawnShapes: () => set({ drawnShapes: [] }),
 

@@ -15,8 +15,7 @@
     "react-dom": "^18.3.1",
     "maplibre-gl": "^4.7.1",
     "@tanstack/react-query": "^5.56.2",
-    "zustand": "^4.5.5",
-    "@turf/turf": "^6.5.0"
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.5",
@@ -29,11 +28,6 @@
     "postcss": "^8.4.45",
     "autoprefixer": "^10.4.20",
     "vitest": "^2.1.1",
-    "@testing-library/react": "^16.0.1",
-    "@testing-library/jest-dom": "^6.5.0",
-    "@testing-library/user-event": "^14.5.2",
-    "@vitest/ui": "^2.1.1",
-    "jsdom": "^25.0.0",
     "happy-dom": "^15.7.3"
   }
 }

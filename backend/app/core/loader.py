@@ -157,12 +157,10 @@ def get_parcels_page(
 
 
 def _parcel_row_to_dict(row: Any) -> dict[str, Any]:
-    import json
+    from shapely.geometry import mapping
 
     geom = row.geometry
     geom_4326 = _reproject_geom_to_4326(geom)
-
-    from shapely.geometry import mapping
 
     # area_acres may already be stored; recompute if not.
     if "area_acres" in row.index and row["area_acres"] > 0:

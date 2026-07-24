@@ -1,110 +1,67 @@
 # Buildable Land Analysis
 
-Take-home assignment — Milestone 1 (FastAPI backend) + Milestone 2 (React/MapLibre frontend).
+Given a parcel and a set of regulated constraint zones — wetlands, 100-year floodplain,
+transmission-line easements, existing buildings — work out how much of it is actually
+buildable once each zone is subtracted with its setback, show the result on a map, and let
+someone adjust it by hand.
 
-Given a parcel of land and a set of regulated constraint zones (wetlands, 100-year
-floodplain, transmission-line easements, existing buildings), compute how much usable
-area remains after subtracting each zone with a configurable setback buffer.
+A parcel might be 100 acres on paper and 60 once the constraints come out.
 
-**Technical writeup:** [WRITEUP.md](WRITEUP.md) — approach, data sources, CRS rationale, UX decisions, known limitations.
+FastAPI backend, React + MapLibre frontend, Hays County TX.
 
----
+- [SETUP.md](SETUP.md) — installing and running on a fresh machine
+- [WRITEUP.md](WRITEUP.md) — approach, data sources, setback rationale, limitations
 
 ## Quick start
 
-### Prerequisites
-
-- Python 3.11+
-- `git`, `pip`
+Assumes Python 3.11+ and Node 20+. Full instructions in [SETUP.md](SETUP.md).
 
 ```bash
-git clone <repo>
-cd task
-
-# Create and activate a virtualenv
-python3.11 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-
+python -m venv venv
+source venv/bin/activate          # Windows: .\venv\Scripts\Activate.ps1
 pip install -r backend/requirements.txt
+
+cd frontend && npm install && cd ..
 ```
 
-### 1 — Ingest data (one-time setup)
-
-Each script downloads public data, clips it to Hays County TX, reprojects to
-EPSG:32614 (UTM Zone 14N), and writes a GeoParquet file to `data/processed/`.
-Run them in any order:
+Ingest the data once. Each script downloads a public dataset, clips it to Hays County,
+reprojects to EPSG:32614, and writes GeoParquet to `data/processed/`:
 
 ```bash
 cd backend
-
-python -m app.scripts.ingest_parcels
-python -m app.scripts.ingest_wetlands
-python -m app.scripts.ingest_flood
+python -m app.scripts.ingest_parcels      # ~117k parcels, 67 MB download
+python -m app.scripts.ingest_wetlands     # ~13k features, takes ~10 min
 python -m app.scripts.ingest_easements
-python -m app.scripts.ingest_buildings
+python -m app.scripts.ingest_flood        # currently fails, see below
+python -m app.scripts.ingest_buildings    # currently fails, see below
 ```
 
-Each script accepts `--local-only` if the raw file is already at `data/raw/<layer>/`.
+Floodplain and buildings cannot be ingested at the moment — FEMA's server fails its TLS
+handshake and Microsoft's blob storage returns 409. The app runs fine without them and
+disables those map layers.
 
-Expected output files after ingestion:
-
-| File | Source |
-|---|---|
-| `data/processed/parcels.parquet` | TNRIS (Hays County CAD) |
-| `data/processed/wetlands.parquet` | USFWS NWI |
-| `data/processed/flood_zones.parquet` | FEMA NFHL |
-| `data/processed/easements.parquet` | HIFLD Transmission Lines |
-| `data/processed/buildings.parquet` | Microsoft Building Footprints |
-
-> **Data sources & access dates** — see `WRITEUP.md` for exact URLs, setback rationale, and CRS methodology.
-
-### 2 — Start the API server
+Then run the two servers:
 
 ```bash
-# From repo root (with .venv active):
-cd backend
-uvicorn app.main:app --reload --port 8000
+cd backend && uvicorn app.main:app --reload --port 8000
+cd frontend && npm run dev
 ```
 
-Interactive API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+Frontend at http://localhost:5173, API docs at http://localhost:8000/docs.
 
-### 3 — Start the frontend (Milestone 2)
+Tests need no data — both suites use synthetic fixtures:
 
 ```bash
-cd frontend
-npm install
-npm run dev          # starts at http://localhost:5173
+cd backend && pytest              # 30 tests
+cd frontend && npm test -- --run  # 23 tests
 ```
-
-The frontend expects the backend at `http://localhost:8000`. To override:
-```bash
-VITE_API_BASE_URL=http://myhost:8000 npm run dev
-```
-
-### 4 — Run all tests
-
-```bash
-# Backend (30 tests, no data files needed):
-cd backend && pytest
-
-# Frontend (23 tests):
-cd frontend && npm test -- --run
-```
-
-All tests use synthetic in-memory data — no ingestion required to run the suites.
-
----
 
 ## Configuration
 
-Default setback distances live in `backend/app/config.yaml`.  To change them
-**without editing code**, either:
-
-1. Edit `config.yaml` and restart the server, **or**
-2. Pass `buffers` in the `POST /compute` request body to override per-request.
+Setback distances live in `backend/app/config.yaml`. Edit and restart, or override
+per-request by passing `buffers` to `POST /compute`. The sidebar sliders use the second.
 
 ```yaml
-# backend/app/config.yaml (excerpt)
 buffers:
   wetland_ft: 50
   floodplain_ft: 0
@@ -112,140 +69,84 @@ buffers:
   building_ft: 10
 ```
 
----
+`CORS_ORIGINS` is the only environment variable, defaulting to the two dev-server ports.
+Copy `.env.example` to `.env` if you need to change it. There is no database.
 
-## API reference
+## API
 
-Full interactive docs at `/docs` after starting the server.
+Interactive docs at `/docs`.
 
-### `GET /health`
-```
-{ "status": "ok" }
-```
+`GET /health` → `{"status": "ok"}`
 
-### `GET /parcels`
-Query params: `bbox` (minx,miny,maxx,maxy in EPSG:4326), `limit`, `offset`.
+`GET /parcels` — params: `bbox` (minx,miny,maxx,maxy in EPSG:4326), `q` (substring match
+on ID, owner, address, legal description), `limit` (max 1000), `offset`.
+
 ```json
 {
-  "parcels": [{ "id": "...", "geometry": {...}, "area_acres": 12.34, "attributes": {...} }],
-  "total_count": 2847
+  "parcels": [{ "id": "...", "geometry": {}, "area_acres": 12.34, "attributes": {} }],
+  "total_count": 117427
 }
 ```
 
-### `GET /parcels/{id}`
-Single parcel by ID.
+`GET /parcels/{id}` — one parcel.
 
-### `GET /constraints`
-```json
-{ "layers": [{ "name": "wetland", "type": "wetland", "default_buffer_ft": 50, "source": "..." }] }
-```
+`GET /constraints` — layer metadata plus `feature_count`, which is 0 for layers that
+failed to ingest.
 
-### `GET /config`
-```json
-{ "wetland_ft": 50, "floodplain_ft": 0, "easement_ft": 100, "building_ft": 10 }
-```
+`GET /config` — the default buffer values.
 
-### `POST /compute`
+`GET /constraint-features?parcel_id=X` — raw, un-buffered constraint geometry clipped to
+one parcel, for the map overlays.
+
+`POST /compute`
+
 ```json
 {
-  "parcel_id": "123456",
+  "parcel_id": "10-0147-0003-00000-3",
   "buffers": { "wetland_ft": 50, "floodplain_ft": 0, "easement_ft": 100, "building_ft": 10 },
   "carve_outs": [],
   "restores": []
 }
 ```
-Response:
+
 ```json
 {
-  "buildable_geojson": { "type": "Polygon", "coordinates": [[...]] },
-  "excluded_geojson": { "type": "MultiPolygon", "coordinates": [[[...]]] },
-  "buildable_acres": 38.72,
-  "total_parcel_acres": 61.40,
+  "buildable_geojson": {},
+  "excluded_geojson": {},
+  "buildable_acres": 3143.00,
+  "total_parcel_acres": 3410.60,
   "breakdown": [
-    { "type": "wetland",    "acres_removed": 8.14,  "source": "USFWS NWI" },
-    { "type": "floodplain", "acres_removed": 12.31, "source": "FEMA NFHL" },
-    { "type": "easement",   "acres_removed": 2.23,  "source": "HIFLD"     }
+    { "type": "wetland",  "acres_removed": 202.19, "source": "USFWS NWI" },
+    { "type": "easement", "acres_removed": 65.42,  "source": "HIFLD" }
   ]
 }
 ```
 
-**Guarantee:** `sum(breakdown[].acres_removed) == total_parcel_acres - buildable_acres`
+`buffers`, `carve_outs`, and `restores` are all optional. Carve-outs and restores are
+GeoJSON polygons in EPSG:4326.
 
-`excluded_geojson` is `parcel − buildable` (`null` when nothing was removed). It is
-returned rather than derived client-side so the shaded area on the map comes from the
-same geometry operation as the acreage and cannot drift from the breakdown.
+Two guarantees worth knowing:
 
----
+- `sum(breakdown[].acres_removed) == total_parcel_acres - buildable_acres`
+- `excluded_geojson` is `parcel − buildable`, computed by the same operation that produced
+  the acreage, so the shaded area on the map cannot disagree with the number. It is `null`
+  when nothing was removed.
 
-## Example curl calls
-
-```bash
-# List first 5 parcels
-curl "http://localhost:8000/parcels?limit=5"
-
-# Get parcel by ID
-curl "http://localhost:8000/parcels/123456"
-
-# Get default buffer config
-curl "http://localhost:8000/config"
-
-# Compute buildable area with default buffers
-curl -X POST http://localhost:8000/compute \
-  -H "Content-Type: application/json" \
-  -d '{
-    "parcel_id": "123456",
-    "buffers": { "wetland_ft": 50, "floodplain_ft": 0, "easement_ft": 100, "building_ft": 10 },
-    "carve_outs": [],
-    "restores": []
-  }'
-
-# Compute with custom wetland buffer and a user carve-out polygon (GeoJSON, EPSG:4326)
-curl -X POST http://localhost:8000/compute \
-  -H "Content-Type: application/json" \
-  -d '{
-    "parcel_id": "123456",
-    "buffers": { "wetland_ft": 100, "floodplain_ft": 0, "easement_ft": 100, "building_ft": 10 },
-    "carve_outs": [{
-      "type": "Polygon",
-      "coordinates": [[[-97.9, 30.1], [-97.89, 30.1], [-97.89, 30.11], [-97.9, 30.11], [-97.9, 30.1]]]
-    }],
-    "restores": []
-  }'
-```
-
----
+Restores cannot reclaim regulated land. A restore is clipped against the hard-constraint
+union before being added back, so it can only recover area you carved out yourself.
 
 ## Docker
 
 ```bash
-# Build
 docker build -t buildable-api ./backend
-
-# Run (mount the data directory so GeoParquet files are accessible)
 docker run -p 8000:8000 -v "$(pwd)/data:/data" buildable-api
 ```
 
----
+Mount `data/` — the GeoParquet files are not baked into the image.
 
-## Environment variables
+## Why Hays County
 
-| Variable | Default | Description |
-|---|---|---|
-| `CORS_ORIGINS` | `http://localhost:5173,http://localhost:3000` | Comma-separated allowed origins |
-
-Copy `.env.example` → `.env` and fill in values.
-
-There is no database. Parcels and constraint layers are read from GeoParquet into
-memory at startup; nothing is persisted between runs.
-
----
-
-## County selection
-
-**Hays County, TX** (FIPS 48209) was chosen because:
-- Manageable parcel count (~20,000–30,000 parcels via TNRIS CAD data — small enough for
-  the in-memory default path, large enough to be representative).
-- Located entirely within UTM Zone 14N (EPSG:32614) — no zone-boundary complexity.
-- Active development pressure (Austin suburb) makes buildable-land analysis practically
-  relevant.
-- All five constraint layers have meaningful coverage in the county.
+Entirely inside UTM Zone 14N, so there is no projection boundary to handle. Real
+development pressure as an Austin suburb, and meaningful coverage in every constraint
+layer. 117,427 parcels is large enough to be representative and small enough to hold in
+memory.

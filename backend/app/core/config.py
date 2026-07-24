@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -24,7 +23,6 @@ class BufferDefaults(BaseModel):
     floodplain_ft: float
     easement_ft: float
     building_ft: float
-    parcel_boundary_ft: float = 0.0
 
 
 class ConstraintLayerMeta(BaseModel):

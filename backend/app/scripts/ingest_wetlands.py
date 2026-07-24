@@ -24,15 +24,12 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import math
 import sys
 import time
 from pathlib import Path
 
 import geopandas as gpd
-import pandas as pd
 import requests
-from shapely.geometry import box, shape
 
 ROOT = Path(__file__).resolve().parents[3]
 RAW_DIR = ROOT / "data" / "raw" / "wetlands"

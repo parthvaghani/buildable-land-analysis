@@ -4,7 +4,7 @@
  * Do not infer types from backend source — use this file only.
  */
 
-import type { Feature, FeatureCollection, Polygon, MultiPolygon, GeoJsonObject } from 'geojson'
+import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson'
 
 // ---------------------------------------------------------------------------
 // GET /parcels
