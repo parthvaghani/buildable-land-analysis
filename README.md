@@ -1,5 +1,9 @@
 # Buildable Land Analysis
 
+**Live demo:** [app](https://frontend-production-2c4b.up.railway.app) ·
+[API](https://buildable-land-analysis-backend-production.up.railway.app) ·
+[API docs](https://buildable-land-analysis-backend-production.up.railway.app/docs)
+
 Given a parcel and a set of regulated constraint zones — wetlands, 100-year floodplain,
 transmission-line easements, existing buildings — work out how much of it is actually
 buildable once each zone is subtracted with its setback, show the result on a map, and let
