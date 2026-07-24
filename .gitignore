@@ -40,12 +40,12 @@ yarn-error.log*
 !.env.example
 
 # ---------------------------------------------------------------------------
-# Data — raw downloads and processed GeoParquet are large (~80 MB) and fully
-# reproducible via `python -m app.scripts.ingest_*`.  Track the scripts, not the
-# outputs.
+# Data — raw downloads are large (~500 MB) and fully reproducible via
+# `python -m app.scripts.ingest_*`; not tracked. data/processed/ (~80 MB) IS
+# tracked despite being reproducible too — Railway's backend deploy reads it
+# directly from the repo at startup instead of via a separate data-fetch step.
 # ---------------------------------------------------------------------------
 data/raw/
-data/processed/
 
 # ---------------------------------------------------------------------------
 # Editors / tooling / OS
