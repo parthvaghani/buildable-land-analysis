@@ -31,7 +31,7 @@ export function ParcelSearch() {
         placeholder="Search by ID, owner, or address…"
         value={parcelSearch}
         onChange={(e) => setParcelSearch(e.target.value)}
-        className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+        className="w-full text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand mb-2"
       />
 
       {isLoading && <p className="text-xs text-gray-400">Loading parcels…</p>}
@@ -48,7 +48,7 @@ export function ParcelSearch() {
             {truncated && ` · showing first ${results.length}`}
           </span>
           {isFetching && (
-            <span className="inline-block w-2 h-2 border border-blue-400 border-t-transparent rounded-full animate-spin" />
+            <span className="inline-block w-2 h-2 border border-brand border-t-transparent rounded-full animate-spin" />
           )}
         </p>
       )}
@@ -58,8 +58,8 @@ export function ParcelSearch() {
           <button
             key={p.id}
             onClick={() => setSelectedParcel(p)}
-            className={`w-full text-left px-3 py-2 hover:bg-blue-50 transition-colors ${
-              selectedParcelId === p.id ? 'bg-blue-100 font-medium text-blue-800' : 'text-gray-700'
+            className={`w-full text-left px-3 py-2 hover:bg-brand-light transition-colors ${
+              selectedParcelId === p.id ? 'bg-brand-light font-medium text-brand-hover' : 'text-gray-700'
             }`}
           >
             <div className="flex items-baseline justify-between gap-2">
@@ -85,7 +85,12 @@ export function ParcelSearch() {
       )}
 
       {selectedParcelId && (
-        <p className="mt-2 text-xs text-blue-600 font-medium">✓ Selected: {selectedParcelId}</p>
+        <p className="mt-2 text-xs text-brand-hover font-medium flex items-center gap-1">
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M4 10.5l3.5 3.5L16 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Selected: {selectedParcelId}
+        </p>
       )}
       <p className="mt-1 text-xs text-gray-400">Or click a parcel directly on the map.</p>
     </div>

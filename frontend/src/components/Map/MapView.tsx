@@ -459,7 +459,7 @@ export function MapView() {
 
       {isComputing && (
         <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-white/90 text-sm text-gray-700 px-4 py-1.5 rounded-full shadow-md flex items-center gap-2 pointer-events-none">
-          <span className="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <span className="inline-block w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
           Computing…
         </div>
       )}
@@ -472,9 +472,19 @@ export function MapView() {
       )}
 
       {drawMode && (
-        <div className={`absolute top-3 left-3 text-sm font-medium px-4 py-1.5 rounded-full shadow-md text-white pointer-events-none ${drawMode === 'carve_out' ? 'bg-red-600' : 'bg-green-600'}`}>
-          {drawMode === 'carve_out' ? '✂ Drawing exclusion' : '↩ Drawing restore'}
-          <span className="ml-2 text-xs opacity-80">
+        <div className={`absolute top-16 left-3 lg:top-3 flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-full shadow-md text-white pointer-events-none ${drawMode === 'carve_out' ? 'bg-red-600' : 'bg-green-600'}`}>
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+            {drawMode === 'carve_out' ? (
+              <path d="M4 4l12 12M16 4L4 16" strokeLinecap="round" />
+            ) : (
+              <>
+                <path d="M6 5L2.5 8.5 6 12" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2.5 8.5H12a4.5 4.5 0 010 9H8" strokeLinecap="round" strokeLinejoin="round" />
+              </>
+            )}
+          </svg>
+          {drawMode === 'carve_out' ? 'Drawing exclusion' : 'Drawing restore'}
+          <span className="text-xs opacity-80">
             · click first point, Enter, or dbl-click to finish · Esc to cancel
           </span>
         </div>

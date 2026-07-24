@@ -54,7 +54,7 @@ export function LayerToggles() {
                   onChange={() => toggleLayer(key)}
                   className="sr-only peer"
                 />
-                <div className="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:bg-blue-500 transition-colors" />
+                <div className="w-8 h-4 bg-gray-200 rounded-full peer peer-checked:bg-brand transition-colors" />
                 <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow peer-checked:translate-x-4 transition-transform" />
               </div>
               <span

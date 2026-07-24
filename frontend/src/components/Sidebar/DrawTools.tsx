@@ -30,24 +30,31 @@ export function DrawTools() {
         <button
           onClick={() => activate('carve_out')}
           disabled={!selectedParcelId}
-          className={`flex-1 text-xs font-medium py-2 px-3 rounded-md border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2 px-3 rounded-md border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
             drawMode === 'carve_out'
               ? 'bg-red-600 text-white border-red-700'
               : 'bg-white text-red-700 border-red-300 hover:bg-red-50'
           }`}
         >
-          ✂ Exclude area
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 4l12 12M16 4L4 16" strokeLinecap="round" />
+          </svg>
+          Exclude area
         </button>
         <button
           onClick={() => activate('restore')}
           disabled={!selectedParcelId}
-          className={`flex-1 text-xs font-medium py-2 px-3 rounded-md border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+          className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2 px-3 rounded-md border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
             drawMode === 'restore'
               ? 'bg-green-600 text-white border-green-700'
               : 'bg-white text-green-700 border-green-300 hover:bg-green-50'
           }`}
         >
-          ↩ Restore area
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 5L2.5 8.5 6 12" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2.5 8.5H12a4.5 4.5 0 010 9H8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Restore area
         </button>
       </div>
 
@@ -73,14 +80,27 @@ export function DrawTools() {
           <ul className="space-y-1 max-h-32 overflow-y-auto">
             {drawnShapes.map((sh) => (
               <li key={sh.id} className="flex items-center justify-between text-xs bg-gray-50 rounded px-2 py-1">
-                <span className={sh.mode === 'carve_out' ? 'text-red-600' : 'text-green-600'}>
-                  {sh.mode === 'carve_out' ? '✂' : '↩'} {sh.id}
+                <span className={`flex items-center gap-1 ${sh.mode === 'carve_out' ? 'text-red-600' : 'text-green-600'}`}>
+                  <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+                    {sh.mode === 'carve_out' ? (
+                      <path d="M4 4l12 12M16 4L4 16" strokeLinecap="round" />
+                    ) : (
+                      <>
+                        <path d="M6 5L2.5 8.5 6 12" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M2.5 8.5H12a4.5 4.5 0 010 9H8" strokeLinecap="round" strokeLinejoin="round" />
+                      </>
+                    )}
+                  </svg>
+                  {sh.id}
                 </span>
                 <button
                   onClick={() => removeDrawnShape(sh.id)}
                   className="text-gray-400 hover:text-red-500 ml-2"
+                  aria-label={`Remove ${sh.id}`}
                 >
-                  ×
+                  <svg className="w-3 h-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
+                  </svg>
                 </button>
               </li>
             ))}

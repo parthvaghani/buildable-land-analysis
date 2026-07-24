@@ -43,8 +43,8 @@ export function BreakdownTable() {
           Area Breakdown
         </h2>
         {isFetching && (
-          <span className="text-[10px] text-blue-500 flex items-center gap-1">
-            <span className="inline-block w-2 h-2 border border-blue-400 border-t-transparent rounded-full animate-spin" />
+          <span className="text-[10px] text-brand flex items-center gap-1">
+            <span className="inline-block w-2 h-2 border border-brand border-t-transparent rounded-full animate-spin" />
             updating
           </span>
         )}
@@ -116,8 +116,13 @@ export function BreakdownTable() {
           )}
 
           {sumMismatch && (
-            <p className="mt-1 text-[10px] text-red-500">
-              ⚠ Breakdown sum ({breakdownSum.toFixed(2)}) ≠ total removed ({totalRemoved.toFixed(2)}) — backend data issue.
+            <p className="mt-1 text-[10px] text-red-500 flex items-start gap-1">
+              <svg className="w-3 h-3 flex-shrink-0 mt-px" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10 3l8 14H2l8-14z" strokeLinejoin="round" />
+                <path d="M10 8v3.5" strokeLinecap="round" />
+                <circle cx="10" cy="14.5" r="0.75" fill="currentColor" stroke="none" />
+              </svg>
+              Breakdown sum ({breakdownSum.toFixed(2)}) ≠ total removed ({totalRemoved.toFixed(2)}) — backend data issue.
             </p>
           )}
         </>
