@@ -68,13 +68,31 @@ python -m app.scripts.ingest_buildings
 ```
 
 The last two fail, and it is not something this repo can fix. FEMA's `hazards.fema.gov`
-fails the TLS handshake; Microsoft's Azure blob returns `409 Public access is not
+refuses or resets the connection; Microsoft's Azure blob returns `409 Public access is not
 permitted`. Both scripts error out rather than writing an empty layer, and the app
 disables those map toggles with a "no data" label.
 
 A failed run leaves an empty folder under `data/raw/`, and the scripts skip downloading
 when that folder exists — so delete it before retrying. If you fetch a file by hand
 instead, put it in `data/raw/<layer>/` and pass `--local-only`.
+
+### Skipping ingestion with the pre-built bundle
+
+To skip the download/ingest step entirely, grab the pre-built data instead of running the
+scripts above:
+
+1. Download `data-bundle.zip` from
+   [Releases → data-v1](https://github.com/parthvaghani/buildable-land-analysis/releases/tag/data-v1).
+2. Extract it into the repo root:
+
+   ```bash
+   unzip data-bundle.zip -d .
+   ```
+
+   This creates `data/raw/` and `data/processed/` directly (the archive already contains
+   that path prefix). Confirm afterwards that `data/processed/parcels.parquet` exists.
+
+3. Start the backend as normal — no ingest scripts needed.
 
 ## Running
 
@@ -84,6 +102,10 @@ Two terminals:
 cd backend && uvicorn app.main:app --reload --port 8000
 cd frontend && npm run dev
 ```
+
+On macOS/Linux, a `Makefile` at the repo root shortcuts this: `make backend`, `make
+frontend`, or `make dev` to run both in one terminal (Ctrl+C stops both). Not available on
+Windows — use the two commands above instead.
 
 Startup takes about 10 seconds while the GeoParquet loads and spatial indexes build. Watch
 for this, and check the parcel count is not zero:
@@ -126,14 +148,14 @@ cd frontend && npx tsc --noEmit
 there:
 
 ```bash
-uvicorn app.main:app --reload --port 8001
-echo "VITE_API_BASE_URL=http://localhost:8001" > frontend/.env.local
+uvicorn app.main:app --reload --port 8000
+echo "VITE_API_BASE_URL=http://localhost:8000" > frontend/.env.local
 ```
 
 Restart Vite afterwards — `VITE_*` variables are read at startup, not hot-reloaded.
 
 Worth knowing: if another process holds the IPv6 wildcard `[::]:8000`, then
-`localhost:8000` resolves to *it* while uvicorn only has `127.0.0.1:8000`, and every
+`localhost:8000` resolves to _it_ while uvicorn only has `127.0.0.1:8000`, and every
 request returns someone else's 404. Use a different port rather than fighting it.
 
 **`venv\Scripts\python.exe` not recognised.** The virtualenv was built on another OS.

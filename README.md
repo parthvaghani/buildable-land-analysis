@@ -36,8 +36,8 @@ python -m app.scripts.ingest_flood        # currently fails, see below
 python -m app.scripts.ingest_buildings    # currently fails, see below
 ```
 
-Floodplain and buildings cannot be ingested at the moment — FEMA's server fails its TLS
-handshake and Microsoft's blob storage returns 409. The app runs fine without them and
+Floodplain and buildings cannot be ingested at the moment — FEMA's server refuses or resets
+the connection and Microsoft's blob storage returns 409. The app runs fine without them and
 disables those map layers.
 
 Then run the two servers:
@@ -46,6 +46,9 @@ Then run the two servers:
 cd backend && uvicorn app.main:app --reload --port 8000
 cd frontend && npm run dev
 ```
+
+On macOS/Linux, `make backend`, `make frontend`, or `make dev` (both at once) work too —
+see the `Makefile` at the repo root. Not available on Windows.
 
 Frontend at http://localhost:5173, API docs at http://localhost:8000/docs.
 
@@ -134,15 +137,6 @@ Two guarantees worth knowing:
 
 Restores cannot reclaim regulated land. A restore is clipped against the hard-constraint
 union before being added back, so it can only recover area you carved out yourself.
-
-## Docker
-
-```bash
-docker build -t buildable-api ./backend
-docker run -p 8000:8000 -v "$(pwd)/data:/data" buildable-api
-```
-
-Mount `data/` — the GeoParquet files are not baked into the image.
 
 ## Why Hays County
 
