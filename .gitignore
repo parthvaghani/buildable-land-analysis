@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+
+# Virtualenvs — this project has had both names locally (~770 MB combined)
+venv/
+.venv/
+env/
+ENV/
+
+# Test / type / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ---------------------------------------------------------------------------
+# Node / frontend
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+.vite/
+.next/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# ---------------------------------------------------------------------------
+# Environment — .env.example IS committed, real .env files are not
+# ---------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ---------------------------------------------------------------------------
+# Data — raw downloads and processed GeoParquet are large (~80 MB) and fully
+# reproducible via `python -m app.scripts.ingest_*`.  Track the scripts, not the
+# outputs.
+# ---------------------------------------------------------------------------
+data/raw/
+data/processed/
+
+# ---------------------------------------------------------------------------
+# Editors / tooling / OS
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.claude/
+.DS_Store
+Thumbs.db
+desktop.ini
