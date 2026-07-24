@@ -46,6 +46,11 @@ interface AppState {
   // Search query
   parcelSearch: string
 
+  // Sidebar visibility — below `lg` it's an off-canvas drawer (see App.tsx);
+  // lives here rather than local state so the onboarding tour can force it
+  // open when a step needs to point at a sidebar element.
+  sidebarOpen: boolean
+
   // --- Actions ---
 
   setSelectedParcel: (parcel: ParcelSummary | null) => void
@@ -57,6 +62,7 @@ interface AppState {
   setDrawMode: (mode: DrawMode) => void
   toggleLayer: (key: LayerKey) => void
   setParcelSearch: (q: string) => void
+  setSidebarOpen: (open: boolean) => void
   reset: () => void
 }
 
@@ -77,6 +83,7 @@ export const useStore = create<AppState>((set) => ({
     building: false,
   },
   parcelSearch: '',
+  sidebarOpen: false,
 
   setSelectedParcel: (parcel) =>
     set({
@@ -111,6 +118,8 @@ export const useStore = create<AppState>((set) => ({
     })),
 
   setParcelSearch: (q) => set({ parcelSearch: q }),
+
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
 
   reset: () =>
     set((s) => ({

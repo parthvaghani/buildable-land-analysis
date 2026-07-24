@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from shapely.geometry import shape
 from shapely.geometry import mapping as shapely_mapping
+from shapely.validation import make_valid
 
 from app.core.cache import constraint_store
 from app.core.config import get_config
@@ -107,8 +108,15 @@ async def compute_endpoint(req: ComputeRequest) -> ComputeResponse:
     sources = {cl.name: cl.source for cl in cfg.constraint_layers}
 
     # 5. Reproject user-drawn polygons from EPSG:4326 → working CRS.
+    #
+    # Freehand click-to-draw polygons can end up self-intersecting (e.g. a
+    # bowtie shape from clicking points out of order) — GEOS raises a hard
+    # TopologyException on any overlay op against an invalid geometry, so
+    # repair before it ever reaches compute_buildable() rather than 500ing.
     def _geojson_to_working(geojson: dict) -> Any:
         geom_4326 = shape(geojson)
+        if not geom_4326.is_valid:
+            geom_4326 = make_valid(geom_4326)
         return reproject_geom(geom_4326, "EPSG:4326", WORKING_CRS)
 
     carve_outs_working = [_geojson_to_working(co) for co in req.carve_outs]

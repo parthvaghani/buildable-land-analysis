@@ -23,6 +23,7 @@ import { useParcels } from '../../hooks/useParcels'
 import { selectCarveOuts, selectRestores, useStore } from '../../state/store'
 import type { DrawMode, DrawnShape } from '../../types/api'
 import { initMapLayers, setSourceData, SOURCE, LAYER } from './mapLayers'
+import { MapLegend } from './MapLegend'
 import type { LayerKey } from '../../state/store'
 
 const MAP_STYLE =
@@ -454,41 +455,51 @@ export function MapView() {
   }, [mapReady, layerVisibility])
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" data-tour="map">
       <div ref={containerRef} className="w-full h-full" />
 
-      {isComputing && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-white/90 text-sm text-gray-700 px-4 py-1.5 rounded-full shadow-md flex items-center gap-2 pointer-events-none">
-          <span className="inline-block w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
-          Computing…
-        </div>
-      )}
+      {/* Top-center stack — transient status messages, kept off top-left
+          (hamburger + help) and top-right (MapLibre's zoom/compass control). */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        {isComputing && (
+          <div className="bg-white/90 text-sm text-gray-700 px-4 py-1.5 rounded-full shadow-md flex items-center gap-2 pointer-events-none">
+            <span className="inline-block w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+            Computing…
+          </div>
+        )}
 
-      {parcelsData && parcelsData.total_count > parcelsData.parcels.length && (
-        <div className="absolute bottom-3 left-3 bg-white/90 text-[11px] text-gray-600 px-3 py-1.5 rounded-md shadow pointer-events-none">
-          Showing {parcelsData.parcels.length.toLocaleString()} of{' '}
-          {parcelsData.total_count.toLocaleString()} parcels in view — zoom in for the rest
-        </div>
-      )}
+        {drawMode && (
+          <div className={`flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-full shadow-md text-white pointer-events-none ${drawMode === 'carve_out' ? 'bg-red-600' : 'bg-green-600'}`}>
+            <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+              {drawMode === 'carve_out' ? (
+                <path d="M4 4l12 12M16 4L4 16" strokeLinecap="round" />
+              ) : (
+                <>
+                  <path d="M6 5L2.5 8.5 6 12" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2.5 8.5H12a4.5 4.5 0 010 9H8" strokeLinecap="round" strokeLinejoin="round" />
+                </>
+              )}
+            </svg>
+            {drawMode === 'carve_out' ? 'Drawing exclusion' : 'Drawing restore'}
+            <span className="text-xs opacity-80">
+              · click first point, Enter, or dbl-click to finish · Esc to cancel
+            </span>
+          </div>
+        )}
+      </div>
 
-      {drawMode && (
-        <div className={`absolute top-16 left-3 lg:top-3 flex items-center gap-1.5 text-sm font-medium px-4 py-1.5 rounded-full shadow-md text-white pointer-events-none ${drawMode === 'carve_out' ? 'bg-red-600' : 'bg-green-600'}`}>
-          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
-            {drawMode === 'carve_out' ? (
-              <path d="M4 4l12 12M16 4L4 16" strokeLinecap="round" />
-            ) : (
-              <>
-                <path d="M6 5L2.5 8.5 6 12" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M2.5 8.5H12a4.5 4.5 0 010 9H8" strokeLinecap="round" strokeLinejoin="round" />
-              </>
-            )}
-          </svg>
-          {drawMode === 'carve_out' ? 'Drawing exclusion' : 'Drawing restore'}
-          <span className="text-xs opacity-80">
-            · click first point, Enter, or dbl-click to finish · Esc to cancel
-          </span>
-        </div>
-      )}
+      {/* Bottom-left stack — kept off bottom-right, which MapLibre's own
+          attribution + scale controls already occupy. */}
+      <div className="absolute bottom-3 left-3 flex flex-col gap-2 items-start">
+        <MapLegend />
+
+        {parcelsData && parcelsData.total_count > parcelsData.parcels.length && (
+          <div className="bg-white/90 text-[11px] text-gray-600 px-3 py-1.5 rounded-md shadow pointer-events-none">
+            Showing {parcelsData.parcels.length.toLocaleString()} of{' '}
+            {parcelsData.total_count.toLocaleString()} parcels in view — zoom in for the rest
+          </div>
+        )}
+      </div>
     </div>
   )
 }

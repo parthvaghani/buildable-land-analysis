@@ -5,18 +5,13 @@ import { BreakdownTable } from './BreakdownTable'
 import { LayerToggles } from './LayerToggles'
 import { DrawTools } from './DrawTools'
 
-interface SidebarProps {
-  /** Below `lg`, the sidebar is an off-canvas drawer; this controls whether it's shown. */
-  open: boolean
-  onClose: () => void
-}
-
-export function Sidebar({ open, onClose }: SidebarProps) {
-  const { reset, selectedParcelId } = useStore()
+export function Sidebar() {
+  const { reset, selectedParcelId, sidebarOpen: open, setSidebarOpen } = useStore()
+  const onClose = () => setSidebarOpen(false)
 
   return (
     <aside
-      className={`fixed inset-y-0 right-0 z-30 w-80 max-w-[85vw] h-full bg-white border-l border-gray-200 flex flex-col overflow-hidden shadow-lg transition-transform duration-300 ease-in-out
+      className={`fixed inset-y-0 right-0 z-30 w-80 max-w-[85vw] h-full bg-white border-l border-gray-200 flex flex-col overflow-hidden shadow-lg max-lg:transition-transform max-lg:duration-300 max-lg:ease-in-out
         lg:static lg:z-auto lg:translate-x-0
         ${open ? 'translate-x-0' : 'translate-x-full'}`}
     >
@@ -39,29 +34,29 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6 divide-y divide-gray-100">
-        <div className="pb-4">
+        <div className="pb-4" data-tour="parcel-search">
           <ParcelSearch />
         </div>
 
-        <div className="pt-4 pb-4">
+        <div className="pt-4 pb-4" data-tour="buffer-sliders">
           <BufferSliders />
         </div>
 
-        <div className="pt-4 pb-4">
+        <div className="pt-4 pb-4" data-tour="draw-tools">
           <DrawTools />
         </div>
 
-        <div className="pt-4 pb-4">
+        <div className="pt-4 pb-4" data-tour="breakdown-table">
           <BreakdownTable />
         </div>
 
-        <div className="pt-4 pb-4">
+        <div className="pt-4 pb-4" data-tour="layer-toggles">
           <LayerToggles />
         </div>
       </div>
 
       {/* Footer / Reset */}
-      <div className="px-4 py-3 border-t border-gray-200 flex-shrink-0">
+      <div className="px-4 py-3 border-t border-gray-200 flex-shrink-0" data-tour="reset-button">
         <button
           onClick={reset}
           disabled={!selectedParcelId}
