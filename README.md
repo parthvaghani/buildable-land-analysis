@@ -1,5 +1,7 @@
 # Buildable Land Analysis
 
+https://github.com/user-attachments/assets/3000b7e0-62f9-4414-a36b-579cbc6a8675
+
 **Live demo:** [app](https://frontend-production-2c4b.up.railway.app) ·
 [API](https://buildable-land-analysis-backend-production.up.railway.app) ·
 [API docs](https://buildable-land-analysis-backend-production.up.railway.app/docs)
