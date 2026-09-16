@@ -46,17 +46,3 @@ yarn-error.log*
 # directly from the repo at startup instead of via a separate data-fetch step.
 # ---------------------------------------------------------------------------
 data/raw/
-
-# ---------------------------------------------------------------------------
-# Editors / tooling / OS
-# ---------------------------------------------------------------------------
-.vscode/
-.idea/
-*.swp
-.claude/
-.DS_Store
-Thumbs.db
-desktop.ini
-branch_structure.json
-temp_auto_push.bat
-temp_interactive_push.bat
